@@ -49,7 +49,7 @@ Let's try the vectorstore by providing a query.
 
 ## Create a Tavily Web Search tool for online searching:
 
-We create a web search tool, which is our second source, to use it in Agent.
+We create a web search tool, which is our second source to access current , to use it in Agent.
 
 ![image](https://github.com/user-attachments/assets/a02c5c25-b4da-4e81-a154-70cd4dddc403)
 
@@ -70,7 +70,7 @@ In this section, we will define various functions. Some of these functions will 
 
 ### TranslateQuery Node:
 
-The first node that we'll create will translate tourists' question to English. We have two reason to do this.
+The first node we'll create will translate the user's question into English. We have two reasons for doing this.
 
 * Documents (guides about Istanbul) that we use in the project is in English Language.
 * The language model we will use gives more successful results in English language compared to other languages.
@@ -82,7 +82,7 @@ We use an LLM to translate the query/question into English. To do this, we creat
 
 #### Promt > Translate the question into English if the question is in another language. \n If the question is in English, do nothing.
 
-With this prompt, we specified what the node will do. Finally, let's create a chain consisting of Prompt-LLM-StrOutputParser.
+After creating Promp, we put Prompt, LLM and StrOutputParser() functions into a chain.
 
 ![image](https://github.com/user-attachments/assets/fb9b943f-19fa-417f-9b9b-d379a30b92c7)
 
@@ -94,26 +94,26 @@ As you can see above, we have passed two questions in different languages to the
 
 ### Router Edge:
 
-Once a user sends a question and it is translated into English, the system analyzes the query to determine the most suitable data source for retrieval.
+Once the user's query has been translated into English, we define a function called RouteQuery. This function analyses the user query and routes it to the most relevant data source according to the content of the query.
 
-There are two available data sources:
+There are two available data sources in this project:
 
 * Web-Search
 * Retriever
 
-To facilitate this process, we implement a query routing mechanism that directs user questions to the appropriate data source based on the query's nature. This decision-making process is powered by an OpenAI LLM model with structured outputs, ensuring that each question is routed effectively to either the vectorstore or web search.
-
-
+Let us analyse this function in more depth. This function is used as a ‘conditional edge’. The function will give a structured output and will return the values contained in the Literal keyword, i.e. either ‘vectorstore’ or ‘web_search’.
 
 #### Prompt > You are an expert at routing a user question to a vectorstore or web search. Vectorstore contains documents about the history of Istanbul, touristic and historical places of Istanbul, and food and travel tips for tourists. Use vectorstore for questions on these topics. If the question is about transportation, weather, and other things, use web search.
 
 ![image](https://github.com/user-attachments/assets/e3238b65-8953-4e18-b7a3-7ab78922b6e5)
 
-Let's try the function that we created.
+Let's try the function that we created for routing.
 
 ![image](https://github.com/user-attachments/assets/2932e36e-aec6-4a69-a240-2ea5b027b3dd)
 
-The router works well, the first question was about current events and the second was about general information. Router routed the questions correctly.
+The router works well, the first question was about the current events and the second one was about general information about Istanbul so Router routed the questions correctly.
+
+#### Note that the output of the Router function. Router can just give 2 different output.
 
 
 
