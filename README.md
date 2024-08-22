@@ -68,7 +68,7 @@ In this section, we will define various functions. Some of these functions will 
 * Edges: These define the connections between nodes, determining the flow of information within the agent. An edge represents the transition from one node to the next, allowing for the sequential execution of tasks.
 
 
-### TranslateQuery Node:
+### TranslateQuery:
 
 The first node we'll create will translate the user's question into English. We have two reasons for doing this.
 
@@ -76,7 +76,7 @@ The first node we'll create will translate the user's question into English. We 
 * The language model we will use gives more successful results in English language compared to other languages.
 * English is the most populer language in the world so lots of tourist can use this app easliy.
 
-Let's create the node.
+Let's create the first function.
 
 We use an LLM to translate the query/question into English. To do this, we create a prompt that tells the LLM what to do.
 
@@ -92,7 +92,7 @@ Let's check if the node called TranslateQuery is working.
 
 As you can see above, we have passed two questions in different languages to the node. The node called TranslateQuery translated the Turkish question into English. It works well.
 
-### Router Edge:
+### Router:
 
 Once the user's query has been translated into English, we define a function called RouteQuery. This function analyses the user query and routes it to the most relevant data source according to the content of the query.
 
@@ -114,6 +114,76 @@ Let's try the function that we created for routing.
 The router works well, the first question was about the current events and the second one was about general information about Istanbul so Router routed the questions correctly.
 
 #### Note that the output of the Router function. Router can just give 2 different output.
+
+### Retrieval Grader:
+
+After retrieving the data related to the user query/question from the retriever, we add an additional layer to determine how relevant the retrieved data is to the question.
+
+#### Prompt > You are a grader assessing relevance of a retrieved document to a user question. \n If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n It does not need to be a stringent test. The goal is to filter out erroneous retrievals. \n Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the question.
+
+![image](https://github.com/user-attachments/assets/69d1f710-d18c-4a4e-8fbd-b2251f877acc)
+
+Let's try the Retrieval Grader function by passing two different questions.
+
+![image](https://github.com/user-attachments/assets/816b632d-f665-497d-8720-ea26bf2adc12)
+
+The same documents were passed through the Retrieval Grader function using two distinct questions. For the query about Hagia Sophia, the function returned ‘relevant - yes’, whereas for the query about LeBron James, it returned ‘irrelevant - no’.
+
+### Generate:
+
+After receiving the most relevant data to the user question/query. We are ready to generate an answer. For this unique use-case I have created a different prompt for generating.
+
+[Clich here to see the Prompt I desired for this project](https://smith.langchain.com/prompts/istanbul-guide-rag?organizationId=8a67dd04-70e9-5608-9c6c-f6c4792775c5)
+
+Let's write the full code and ask a question.
+
+![image](https://github.com/user-attachments/assets/329b7591-62ff-42d3-ba88-7995ce01510d)
+
+It looks good, we can skip to the next step.
+
+### Hallucination Grader:
+
+This section introduces a system that evaluates whether a language model’s generated response is based on factual information. The model uses a binary scoring system—either 'yes' or 'no'—to determine if the answer is grounded in the provided facts. The process involves setting up a grader using a specific LLM (language model) and a prompt that compares the generated output against a set of retrieved documents.
+
+#### Prompt > You are a grader assessing whether an LLM generation is grounded in / supported by a set of retrieved facts. \n Give a binary score 'yes' or 'no'. 'Yes' means that the answer is grounded in / supported by the set of facts.
+
+Let us then use the function to assess whether the generated answer is consistent with the real data and to help identify possible hallucinations (i.e., fabricated or unsupported content).
+
+![image](https://github.com/user-attachments/assets/bd640548-91c6-4d70-94af-7b6e84b61745)
+
+As illustrated in the image above, the documents retrieved by the retriever align with the model's output, indicating that the response is grounded in factual data. This confirms that the model is not generating hallucinated or unsupported information.
+
+### Answer Grader:
+
+This section defines a system that evaluates whether a generated response effectively addresses the user's question. Using a binary score—'yes' or 'no'—the grader determines if the answer resolves the query. The process involves setting up a language model (LLM) to generate structured output, then comparing the user's question against the model’s generated answer using a specified prompt.
+
+#### Prompt > You are a grader assessing whether an answer addresses / resolves a question \n Give a binary score 'yes' or 'no'. Yes' means that the answer resolves the question.
+
+Let's pass the answer and the user's question/query generated with the Generate function in the previous step to this function and see the results.
+
+![image](https://github.com/user-attachments/assets/4febfbbe-dc20-4929-97fc-2970bb0eaea0)
+
+The result is ‘yes’. This means that the generated answer answers the user's query/question.
+
+### Question Re-writer
+
+This function optimises user questions/queries to improve their suitability for vector-based retrieval. Using a language model, the function interprets the semantic intent of the input question and formulates a more optimised version. The aim is to improve the efficiency of the retrieval process by providing clearer and more precise questions.
+
+#### Prompt > You a question re-writer that converts an input question to a better version that is optimized \n for vectorstore retrieval. Look at the input and try to reason about the underlying semantic intent / meaning.
+
+Notice that the variable named "question" contains the question "Where is the Hagia Sophia? Let's pass the same question to the function and see what happens.
+
+![image](https://github.com/user-attachments/assets/2c75549d-a478-4ff2-b4f1-9ae299af8fc8)
+
+As you can see in the image above, function optimised the question for vector-based search and rewrote it.
+
+#### New Rewritten Question > "What is the location of the Hagia Sophia?"
+
+
+
+
+
+
 
 
 
