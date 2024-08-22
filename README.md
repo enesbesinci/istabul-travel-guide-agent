@@ -1,4 +1,4 @@
-# Istanbul Travel Guide Chatbot with RAG Using Agent from LangGraph
+# Travel Guide Chatbot with RAG Using Agent from LangGraph
 
 ## Introduction:
 Hello everyone, in this project we'll develop a Retreival Augmented Generation workflow using Agents from LangGraph.
@@ -178,6 +178,150 @@ Notice that the variable named "question" contains the question "Where is the Ha
 As you can see in the image above, function optimised the question for vector-based search and rewrote it.
 
 #### New Rewritten Question > "What is the location of the Hagia Sophia?"
+
+We have created all the funcstions to use it in the Agent. We'll create nodes and edges using these functions. Now we can skip to the next step.
+
+## GraphState Defination:
+
+The first thing we should do when define a graph is define the State of the graph. Now we'll define a State and specify the parameters that it will take. For this RAG flow we have 3 parameters.
+
+* question > User question/query
+* generation > LLM generation
+* documents > List of documents
+
+![image](https://github.com/user-attachments/assets/53381d1a-ca7b-4c00-96f2-fd79cec817f2)
+
+After creating the State we can create the most important components of the an Agent. Nodes and Edges.
+
+## Creating Nodes and Edges:
+
+Let's start by creating nodes.
+
+In short, Nodes receive the current State as input and return a value that updates that state.
+
+### Retrieve Node:
+
+![image](https://github.com/user-attachments/assets/049e6067-aa01-493a-8b42-727ba661f809)
+
+Retrieve Node takes the question of the State as input and returns the relevant documents to the question as output.
+As you can in the image above, we have used the "retriever" function we have created before.
+
+
+### Translator Node:
+
+![image](https://github.com/user-attachments/assets/878a106a-0311-4aa7-8db3-12a9cb9ca56a)
+
+The Translator node takes the State question as input and translates the query using the question_translater’ function, then outputs the translated question as output.
+
+### Generate Node:
+
+![image](https://github.com/user-attachments/assets/fda43410-d879-4c50-af09-c0855051f752)
+
+Generate Node takes the question and a list of documents of the State as input and returns a response as output. It does this with the function we defined called ‘rag_chain’.
+
+
+### Grade Documents:
+
+![image](https://github.com/user-attachments/assets/3f1321c6-c296-46d6-9cc4-8c18d8532569)
+
+Grade Documents Node takes question and documents of the State and  evaluates using the retrieval_grader function and returns only the relevant documents.
+
+
+### Transform Query Node:
+
+![image](https://github.com/user-attachments/assets/cee8ff65-5680-464e-b999-12929a83d394)
+
+Transform Query Node transforms the query to produce a better the question by using question_rewriter functions that we defined above.
+
+
+### Web Search Node:
+
+![image](https://github.com/user-attachments/assets/39c72efe-af7d-40b1-832e-df63abf7f81e)
+
+That's it. We have defined the all of the Nodes of the Agent. Now we can continue by defining the Edges.
+
+### Route Question Edge:
+
+![image](https://github.com/user-attachments/assets/93baa819-5d7a-4506-8d49-9eac82da64d9)
+
+Route Question Edge takes the user question as input and redirects it to ‘web_search’ or ‘vectorstore’ based on the content of the question. The question_router function is used for this.
+
+
+### Decide To Generate Edge:
+
+![image](https://github.com/user-attachments/assets/d54e032c-4da6-41c8-9431-8328162d5592)
+
+Decide To Generate Edge takes the question and filtered documents, if there are any relevant documents it returns ‘generate’ output to generate the answer, if there are no relevant documents it returns ‘transform_query’ output.
+
+
+### Grade Generation and Documents and Question Edge:
+
+![image](https://github.com/user-attachments/assets/0063bac8-db15-4b53-b4b1-30d4eb168dd1)
+
+Determines whether the generation is grounded in the document and answers question.
+
+#### We have defined all Nodes and Edges. Now, we can continue by building the Graph.
+
+## Building Graph:
+
+Firstly, we define the nodes in the Graph we created.
+
+![image](https://github.com/user-attachments/assets/a19d29e1-8d73-4bf4-b110-e7f2b6dc7406)
+
+We have defined all the nodes. Now let's create a logic for our Agent and add Edges.
+
+![image](https://github.com/user-attachments/assets/85d1e803-80df-434d-a89c-117746faddbf)
+
+As you can see in the code, we determined the flow of the graph. We did this with the help of various edges. The nodes are simple Python functions that process the input from the edges. This is a good reason to work with LangGraph instead of LangChain agents.
+
+Finally, let's compile the Graph we created. This is a required step.
+
+![image](https://github.com/user-attachments/assets/7e44d4d5-513f-4e0b-8fe6-634202011ad3)
+
+## Visualization of the Agent Flow:
+
+We can visualise Agent Flow for better understanding and error checking.
+
+![image](https://github.com/user-attachments/assets/c6d876d8-4465-4927-a449-3ecdbff8e64e)
+
+Let's see the graph.
+
+![image](https://github.com/user-attachments/assets/e818c0b8-e138-498b-a9bd-57113abd6206)
+
+
+## Run the Agent:
+
+Now that everything's ready, we can ask the Agent our questions.
+
+Firstly, I will ask a question to use the web-search node.
+
+![image](https://github.com/user-attachments/assets/8f951f07-501b-440d-bd67-0d5bcb23e10e)
+
+The response looks good. Here is the full response:
+
+
+As of now, the weather in Istanbul is quite pleasant. The current temperature is approximately 28.2°C (82.8°F), and it is sunny, making it a great day to explore the city. The humidity level is around 70%, which can make it feel a bit warmer, with a "feels like" temperature of 28.3°C (83.0°F). \n\nThere is a moderate breeze coming from the west-southwest at about 11.9 mph (19.1 kph), which can provide some relief from the heat. The atmospheric pressure is 1008 mb, and there are no precipitation forecasts, so you can expect a dry day. Visibility is good at 10 km (6 miles), and the UV index is relatively high at 8.0, so it\'s advisable to wear sunscreen if you\'re spending time outdoors.\n\nOverall, it\'s a beautiful sunny day in Istanbul, perfect for sightseeing and enjoying the city\'s rich history and vibrant culture!
+
+Note also that we can see the stages through which the answer is generated.
+
+![image](https://github.com/user-attachments/assets/6cea5982-01ae-4e05-897c-07ffd0331686)
+
+Now let's ask another question where the agent will use the vector-store, but I will ask this question in Turkish.
+
+#### Question: İstanbul'da gezmek için 3 tane tarihi mekan önerebilir misin? Bu mekanlardan çok kısaca bahset?
+
+![image](https://github.com/user-attachments/assets/0f00f42e-0012-491d-b443-f6d045cff402)
+
+#### Response: Istanbul is rich in history and offers numerous historical sites to explore. Here are three must-visit historical places:\n\n1. **Hagia Sophia (Ayasofya)**: Originally constructed as a Christian basilica in 537 AD, Hagia Sophia is renowned for its massive dome and stunning mosaics. It served as a cathedral for nearly a thousand years before being converted into a mosque after the Ottoman conquest of Constantinople in 1453. Today, it stands as a museum, showcasing its architectural grandeur and historical significance.\n\n2. **Topkapı Palace**: This opulent palace was the primary residence of the Ottoman sultans for approximately 400 years. Located in the Historic Peninsula, Topkapı Palace is a sprawling complex that includes beautiful courtyards, exquisite tile work, and a rich collection of artifacts, including the famous Topkapi Dagger and the Prophet Muhammad's cloak. Visitors can explore the various sections of the palace, including the Harem, which offers a glimpse into the private lives of the sultans and their families.\n\n3. **Blue Mosque (Sultan Ahmed Mosque)**: Known for its striking blue tiles that adorn its interior, the Blue Mosque is an iconic symbol of Istanbul. Built between 1609 and 1616, it features six minarets and a grand courtyard. The mosque is still an active place of worship, so visitors are encouraged to dress modestly and respect prayer times. Its stunning architecture and serene atmosphere make it a must-see for anyone visiting the city.\n\nThese sites not only reflect Istanbul's rich history but also its cultural and architectural diversity, making them essential stops on your journey through the city.
+
+Now let's ask Agent a question in Korean.
+
+![image](https://github.com/user-attachments/assets/31408a29-124f-4d84-a7fa-65d63142c8de)
+
+#### Question: 쉴레이마니예 모스크의 역사에 대한 정보를 제공하세요. (Provide some information about the history of the Sheleimaniye Mosque)
+
+#### Response: The Suleymaniye Mosque is one of the most significant landmarks in Istanbul, both architecturally and historically. It was commissioned by Sultan Suleyman the Magnificent, one of the most illustrious rulers of the Ottoman Empire, and was completed in 1557. The mosque was designed by the renowned Ottoman chief architect Mimar Sinan, who is celebrated for his contributions to Ottoman architecture and is often regarded as one of the greatest architects in history.\n\nThe mosque is situated on one of the highest hills in Istanbul, allowing it to dominate the city's skyline. It was built as a grand statement of the Ottoman Empire's power and sophistication, serving as an Islamic counterpart to the Byzantine Hagia Sophia, which had been a symbol of Christian architecture for centuries.\n\nThe architectural design of the Suleymaniye Mosque is particularly noteworthy for its vast central dome, which is surrounded by tiered domes, creating a harmonious and majestic interior space. Sinan's innovative use of the dome was a significant advancement in architectural design, and it is often cited as a perfect example of his mastery in this area.\n\nIn addition to its architectural beauty, the mosque complex includes a variety of other structures, such as a madrasa (educational institution), a hospital, and a public kitchen, which served the poor. The Suleymaniye Mosque not only serves as a place of worship but also as a center for community life in Istanbul.\n\nOverall, the Suleymaniye Mosque stands as a testament to the artistic and cultural achievements of the Ottoman Empire during its zenith, reflecting the empire's commitment to both religious devotion and architectural innovation.
+
 
 
 
