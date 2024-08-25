@@ -238,6 +238,19 @@ Transform Query Node transforms the query to produce a better the question by us
 
 ![image](https://github.com/user-attachments/assets/39c72efe-af7d-40b1-832e-df63abf7f81e)
 
+
+### Output Guardrails Node:
+
+As you know, this application will be used by people from many different cultures, countries, races and genders. Therefore, we want to filter answers that contain bad/inappropriate content about these people.
+
+Finally, we will add a Node that checks the generated output for content. If the output contains any content that is racist, sexist or against human rights, we do not want to show the answer to the user.
+
+![image](https://github.com/user-attachments/assets/7b4bde44-05ed-4449-adfc-ee92b99fddf0)
+
+Let's check the Output Guardrails Node.
+
+![image](https://github.com/user-attachments/assets/51276f64-3a19-4d42-aa81-4f7a670be967)
+
 That's it. We have defined the all of the Nodes of the Agent. Now we can continue by defining the Edges.
 
 ### Route Question Edge:
