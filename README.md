@@ -165,7 +165,7 @@ Let's pass the answer and the user's question/query generated with the Generate 
 
 The result is ‘yes’. This means that the generated answer answers the user's query/question.
 
-### Question Re-writer
+### Question Re-writer:
 
 This function optimises user questions/queries to improve their suitability for vector-based retrieval. Using a language model, the function interprets the semantic intent of the input question and formulates a more optimised version. The aim is to improve the efficiency of the retrieval process by providing clearer and more precise questions.
 
@@ -178,6 +178,18 @@ Notice that the variable named "question" contains the question "Where is the Ha
 As you can see in the image above, function optimised the question for vector-based search and rewrote it.
 
 #### New Rewritten Question > "What is the location of the Hagia Sophia?"
+
+### Output Guardrails:
+
+This function checks whether the answer contains negative content for users.
+
+This function checks whether the answer contains negative content for users.
+
+![image](https://github.com/user-attachments/assets/2f454fef-ab97-41d4-98c3-49393d4d2c86)
+
+Let's check the function.
+
+![image](https://github.com/user-attachments/assets/730b8607-5d7e-40dd-8340-011e20d4cb4e)
 
 We have created all the funcstions to use it in the Agent. We'll create nodes and edges using these functions. Now we can skip to the next step.
 
@@ -238,20 +250,15 @@ Transform Query Node transforms the query to produce a better the question by us
 
 ![image](https://github.com/user-attachments/assets/39c72efe-af7d-40b1-832e-df63abf7f81e)
 
-
 ### Output Guardrails Node:
 
 As you know, this application will be used by people from many different cultures, countries, races and genders. Therefore, we want to filter answers that contain bad/inappropriate content about these people.
 
-Finally, we will add a Node that checks the generated output for content. If the output contains any content that is racist, sexist or against human rights, we do not want to show the answer to the user.
+Finally, we will add a Node that takes the generated output as input. If the generated output contains any content that is racist, sexist or against human rights, we do not want to show the answer to the user.
 
-![image](https://github.com/user-attachments/assets/7b4bde44-05ed-4449-adfc-ee92b99fddf0)
+#### That's it. We have defined the all of the Nodes of the Agent. Now we can continue by defining the Edges.
 
-Let's check the Output Guardrails Node.
-
-![image](https://github.com/user-attachments/assets/51276f64-3a19-4d42-aa81-4f7a670be967)
-
-That's it. We have defined the all of the Nodes of the Agent. Now we can continue by defining the Edges.
+![image](https://github.com/user-attachments/assets/a5be99aa-d4f9-4428-b362-b3cb8cfad9e8)
 
 ### Route Question Edge:
 
@@ -259,13 +266,11 @@ That's it. We have defined the all of the Nodes of the Agent. Now we can continu
 
 Route Question Edge takes the user question as input and redirects it to ‘web_search’ or ‘vectorstore’ based on the content of the question. The question_router function is used for this.
 
-
 ### Decide To Generate Edge:
 
 ![image](https://github.com/user-attachments/assets/d54e032c-4da6-41c8-9431-8328162d5592)
 
 Decide To Generate Edge takes the question and filtered documents, if there are any relevant documents it returns ‘generate’ output to generate the answer, if there are no relevant documents it returns ‘transform_query’ output.
-
 
 ### Grade Generation and Documents and Question Edge:
 
