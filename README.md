@@ -181,7 +181,7 @@ As you can see in the image above, function optimised the question for vector-ba
 
 ### Output Guardrails:
 
-This function checks whether the answer contains negative content for users.
+As you know, this application will be used by people from many different cultures, countries, races and genders. Therefore, we want to filter answers that contain negative/inappropriate content about these people.
 
 This function checks whether the answer contains negative content for users.
 
@@ -251,8 +251,6 @@ Transform Query Node transforms the query to produce a better the question by us
 ![image](https://github.com/user-attachments/assets/39c72efe-af7d-40b1-832e-df63abf7f81e)
 
 ### Output Guardrails Node:
-
-As you know, this application will be used by people from many different cultures, countries, races and genders. Therefore, we want to filter answers that contain bad/inappropriate content about these people.
 
 Finally, we will add a Node that takes the generated output as input. If the generated output contains any content that is racist, sexist or against human rights, we do not want to show the answer to the user.
 
