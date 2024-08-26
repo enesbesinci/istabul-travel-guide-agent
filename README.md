@@ -1,4 +1,4 @@
-# Travel Guide Chatbot with RAG Using Agent from LangGraph
+# Travel Guide Chatbot with Adaptive RAG Using Agent from LangGraph
 
 ## Introduction:
 Hello everyone, in this project we'll develop a Retreival Augmented Generation workflow using Agents from LangGraph.
